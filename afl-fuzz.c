@@ -1336,7 +1336,7 @@ static void update_bitmap_score(struct queue_entry* q) {
 
          u32 top_rated_fuzz_level = top_rated[i]->fuzz_level;
          u32 top_rated_paths      = getPaths(top_rated[i]->exec_cksum);
-         u64 top_rated_fav_factor = fav_factor > top_rated[i]->exec_us * top_rated[i]->len;
+         u64 top_rated_fav_factor = top_rated[i]->exec_us * top_rated[i]->len;
 
          if (fuzz_level > top_rated_fuzz_level) continue;
          else if (fuzz_level == top_rated_fuzz_level) {
@@ -1422,7 +1422,7 @@ static void cull_queue(void) {
       top_rated[i]->favored = 1;
       queued_favored++;
 
-      if (!top_rated[i]->fuzz_level == 0) pending_favored++;
+      if (top_rated[i]->fuzz_level == 0) pending_favored++;
 
     }
 
