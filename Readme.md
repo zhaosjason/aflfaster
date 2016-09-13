@@ -6,7 +6,9 @@ Michal Zalewski \<lcamtuf@google.com\>.
 
 AFLFast is a fork of AFL that has been shown to outperform AFL by an **order of magnitude**! It helped in the success of Team Codejitsu at the finals of the DARPA Cyber Grand Challenge where their bot Galactica took **2nd place** in terms of #POVs proven (see red bar at https://www.cybergrandchallenge.com/event#results). AFLFast exposed several previously unreported CVEs that could not be exposed by AFL in 24 hours and otherwise exposed vulnerabilities significantly faster than AFL while generating orders of magnitude more unique crashes. 
 
-Essentially, we observed that most generated inputs exercise the same few “high-frequency” paths and developed strategies to gravitate towards low-frequency paths, to stress significantly more program behavior in the same amount of time. We devised several **search strategies** that decide in which order the seeds should be fuzzed and **power schedules** that smartly regulate the number of inputs generated from a seed (i.e., the time spent fuzzing a seed). We call the number of inputs generated from a seed, the seed's **energy**. 
+**Note:** In parallel mode, we suggest to run the master using the exploit schedule (-p exploit) and the slaves with a combination of cut-off-exponential (default), exponential (-p fast), and explore (-p explore) schedules. In single mode, the default settings will do.
+
+Essentially, we observed that most generated inputs exercise the same few "high-frequency" paths and developed strategies to gravitate towards low-frequency paths, to stress significantly more program behavior in the same amount of time. We devised several **search strategies** that decide in which order the seeds should be fuzzed and **power schedules** that smartly regulate the number of inputs generated from a seed (i.e., the time spent fuzzing a seed). We call the number of inputs generated from a seed, the seed's **energy**. 
 
 
 

@@ -3151,8 +3151,7 @@ static u8 save_if_interesting(char** argv, void* mem, u32 len, u8 fault) {
   u32 key_cksum = hash32(trace_bits, MAP_SIZE, HASH_CONST);
   k = kh_get(32, cksum2fuzz, key_cksum);
   if (k != kh_end(cksum2fuzz)){
-    if (k < (u32) 1 << 31) 
-      kh_value(cksum2fuzz, k) ++;
+    kh_value(cksum2fuzz, k) ++;
   }
 
   if (fault == crash_mode) {
@@ -4715,10 +4714,11 @@ static u32 calculate_score(struct queue_entry* q) {
   u32 factor = 1;
   switch (schedule) {
 
-    case EXPLORE:
+    case EXPLORE: 
       break;
+
     case EXPLOIT:
-      factor = POWER_BETA;
+      factor = MAX_FACTOR;
       break;
 
     case COE:

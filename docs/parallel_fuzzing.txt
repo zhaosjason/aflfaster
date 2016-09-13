@@ -34,14 +34,23 @@ system, simply create a new, empty output directory ("sync dir") that will be
 shared by all the instances of afl-fuzz; and then come up with a naming scheme
 for every instance - say, "fuzzer01", "fuzzer02", etc. 
 
+For best efficiency, run the master using the exploit schedule (-p exploit) and
+the slaves with a combination of cut-off-exponential (default), exponential 
+(-p fast), and explore (-p explore) schedules.
+
 Run the first one ("master", -M) like this:
 
-$ ./afl-fuzz -i testcase_dir -o sync_dir -M fuzzer01 [...other stuff...]
+$ ./afl-fuzz -i testcase_dir -o sync_dir -p exploit -M fuzzer01 [.other stuff.]
 
 ...and then, start up secondary (-S) instances like this:
 
-$ ./afl-fuzz -i testcase_dir -o sync_dir -S fuzzer02 [...other stuff...]
-$ ./afl-fuzz -i testcase_dir -o sync_dir -S fuzzer03 [...other stuff...]
+$ ./afl-fuzz -i testcase_dir -o sync_dir -p coe     -S fuzzer02 [.other stuff.]
+$ ./afl-fuzz -i testcase_dir -o sync_dir -p coe     -S fuzzer03 [.other stuff.]
+$ ./afl-fuzz -i testcase_dir -o sync_dir -p coe     -S fuzzer04 [.other stuff.]
+$ ./afl-fuzz -i testcase_dir -o sync_dir -p fast    -S fuzzer05 [.other stuff.]
+$ ./afl-fuzz -i testcase_dir -o sync_dir -p fast    -S fuzzer06 [.other stuff.]
+$ ./afl-fuzz -i testcase_dir -o sync_dir -p fast    -S fuzzer07 [.other stuff.]
+$ ./afl-fuzz -i testcase_dir -o sync_dir -p explore -S fuzzer08 [.other stuff.]
 
 Each fuzzer will keep its state in a separate subdirectory, like so:
 
