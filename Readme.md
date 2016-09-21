@@ -4,9 +4,9 @@ Power schedules implemented by Marcel Böhme \<marcel.boehme@acm.org\>.
 AFLFast is an extension of AFL which is written and maintained by 
 Michal Zalewski \<lcamtuf@google.com\>.
 
-AFLFast is a fork of AFL that has been shown to outperform AFL by an **order of magnitude**! It helped in the success of Team Codejitsu at the finals of the DARPA Cyber Grand Challenge where their bot Galactica took **2nd place** in terms of #POVs proven (see red bar at https://www.cybergrandchallenge.com/event#results). AFLFast exposed several previously unreported CVEs that could not be exposed by AFL in 24 hours and otherwise exposed vulnerabilities significantly faster than AFL while generating orders of magnitude more unique crashes. 
+AFLFast is a fork of AFL that has been shown to outperform AFL 1.96b by an **order of magnitude**! It helped in the success of Team Codejitsu at the finals of the DARPA Cyber Grand Challenge where their bot Galactica took **2nd place** in terms of #POVs proven (see red bar at https://www.cybergrandchallenge.com/event#results). AFLFast exposed several previously unreported CVEs that could not be exposed by AFL in 24 hours and otherwise exposed vulnerabilities significantly faster than AFL while generating orders of magnitude more unique crashes. 
 
-**Note:** In parallel mode, we suggest to run the master using the exploit schedule (-p exploit) and the slaves with a combination of cut-off-exponential (default), exponential (-p fast), and explore (-p explore) schedules. In single mode, the default settings will do.
+**Note:** In parallel mode, we suggest to run the master using the exploit schedule (-p exploit) and the slaves with a combination of cut-off-exponential (-p coe), exponential (-p fast; default), and explore (-p explore) schedules. In single mode, the default settings will do.
 
 Essentially, we observed that most generated inputs exercise the same few "high-frequency" paths and developed strategies to gravitate towards low-frequency paths, to stress significantly more program behavior in the same amount of time. We devised several **search strategies** that decide in which order the seeds should be fuzzed and **power schedules** that smartly regulate the number of inputs generated from a seed (i.e., the time spent fuzzing a seed). We call the number of inputs generated from a seed, the seed's **energy**. 
 
@@ -25,6 +25,8 @@ We find that AFL's exploitation-based constant schedule assigns **too much energ
 where *α(i)* is the performance score that AFL uses to compute for the seed input *i*, *β(i)>1* is a constant, *s(i)* is the number of times that seed *i* has been chosen from the queue, *f(i)* is the number of generated inputs that exercise the same path as seed *i*, and *μ* is the average number of generated inputs exercising a path.
   
 More details can be found in our paper that was recently accepted at the [23rd ACM Conference on Computer and Communications Security (CCS'16)](https://www.sigsac.org/ccs/CCS2016/accepted-papers/).
+
+PS: The most recent version of AFL (2.33b) implements the explore schedule which yielded a significance performance boost. We are currently conducting experiments with a hybrid version between AFLFast and 2.33b and report back soon.
 
 Copyright 2013, 2014, 2015, 2016 Google Inc. All rights reserved.
 Released under terms and conditions of Apache License, Version 2.0.
