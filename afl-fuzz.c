@@ -99,8 +99,8 @@ static u32 stats_update_freq = 1;     /* Stats update frequency (execs)   */
 
 static u8 schedule = 0;               /* Power schedule (default: FAST)   */
 enum {
-  /* 00 */ COE,                       /* Cut-Off Exponential schedule     */
-  /* 01 */ FAST,                      /* Exponential schedule             */
+  /* 00 */ FAST,                      /* Exponential schedule             */
+  /* 01 */ COE,                       /* Cut-Off Exponential schedule     */
   /* 02 */ EXPLORE,                   /* Exploration-based constant sch.  */
   /* 03 */ LIN,                       /* Linear schedule                  */
   /* 04 */ QUAD,                      /* Quadratic schedule               */
@@ -4709,6 +4709,20 @@ static u32 calculate_score(struct queue_entry* q) {
 
   }
 
+  /* Final adjustment based on input depth, under the assumption that fuzzing
+     deeper test cases is more likely to reveal stuff that can't be
+     discovered with traditional fuzzers. */
+
+  switch (q->depth) {
+
+    case 0 ... 3:   break;
+    case 4 ... 7:   perf_score *= 2; break;
+    case 8 ... 13:  perf_score *= 3; break;
+    case 14 ... 25: perf_score *= 4; break;
+    default:        perf_score *= 5;
+
+  }
+
   u32 fuzz = getFuzz(q->exec_cksum);
   u32 fuzz_total, n_paths, fuzz_mu;
   u32 factor = 1;
@@ -6500,8 +6514,7 @@ havoc_stage:
 
     if (queued_paths != havoc_queued) {
 
-      if (perf_score <= HAVOC_MAX_MULT * 100
-          && perf_score < orig_perf * MAX_FACTOR) {
+      if (perf_score <= HAVOC_MAX_MULT * 100) {
         stage_max  *= 2;
         perf_score *= 2;
       }
