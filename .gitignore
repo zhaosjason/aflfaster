@@ -9,3 +9,4 @@ afl-gotcpu
 afl-showmap
 afl-tmin
 as
+*.dSYM
