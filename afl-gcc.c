@@ -328,6 +328,14 @@ int main(int argc, char** argv) {
 
   edit_params(argc, argv);
 
+  fprintf(stderr, "CMD = ");
+
+  for (int i = 0; i < argc; i++) {
+    fprintf(stderr, "%s ", ((char **) cc_params)[i]);
+  }
+
+  fprintf(stderr, "\n");
+
   execvp(cc_params[0], (char**)cc_params);
 
   FATAL("Oops, failed to execute '%s' - check your PATH", cc_params[0]);
