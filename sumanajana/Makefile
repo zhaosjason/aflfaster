@@ -14,7 +14,9 @@ LDLIBS = --coverage
 test: test1
 	../afl-fuzz -i input -o output ./test1 @@
 
-test1:
+test1: test1.o
+	AFL_HARDEN=1 $(CC) $(LDFLAGS) test1.o -o test1
+test1.o:
 	AFL_HARDEN=1 $(CC) $(CFLAGS) -c test1.c -o test1.o
 
 .PHONY: clean
