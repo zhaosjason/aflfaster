@@ -330,10 +330,16 @@ int main(int argc, char** argv) {
 
   fprintf(stderr, "CMD = ");
 
-  for (int i = 0; i < argc; i++) {
+  char **p = (char **) cc_params;
+  while (p != NULL && *p != NULL) {
+    fprintf(stderr, "%s ", *p++);
+  }
+/*
+  int i;
+  for (i = 0; i < argc; i++) {
     fprintf(stderr, "%s ", ((char **) cc_params)[i]);
   }
-
+*/
   fprintf(stderr, "\n");
 
   execvp(cc_params[0], (char**)cc_params);
