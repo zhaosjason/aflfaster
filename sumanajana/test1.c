@@ -23,25 +23,49 @@ int main(int argc, char* argv[]) {
 
       if (str[0] == 'a') {
         if (str[1] == 'b') {
-          char buf[SMALL_BUF_LEN];
-          strcpy( buf, str );
-        }
-        else {
-          return 1;
+          if (str[2] == 'c') {
+            if (str[3] == 'd') {
+              if (str[4] == 'e') {
+                if (str[5] == 'f') {
+                  char buf[SMALL_BUF_LEN];
+                  strcpy( buf, str );
+                }
+              }
+            }
+          }
         }
       }
 
       if (str[0] == 'z') {
-        if (str[1] == 'y') {
-          char buf[SMALL_BUF_LEN];
-          strcpy( buf, str );
+        if (str[1] == 'q') {
+          if (str[2] == ';') {
+            if (str[3] == '"') {
+              if (str[4] == '#') {
+                if (str[5] == 'a') {
+                  char buf[SMALL_BUF_LEN];
+                  strcpy( buf, str );
+                }
+              }
+            }
+          }
         }
-        else{
-          return 1;
+      }
+
+      if (str[0] == '6') {
+        if (str[1] == 'c') {
+          if (str[2] == 'w') {
+            if (str[3] == '"') {
+              if (str[4] == '.') {
+                if (str[5] == '~') {
+                  char buf[SMALL_BUF_LEN];
+                  strcpy( buf, str );
+                }
+              }
+            }
+          }
         }
       }
 
     }
   }
-
 }
