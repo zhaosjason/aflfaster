@@ -44,6 +44,9 @@ endif
 
 COMM_HDR    = alloc-inl.h config.h debug.h types.h
 
+none:
+	@echo "Don't use this makefile.  See sumanajana/ instead"
+
 all: test_x86 $(PROGS) afl-as test_build all_done
 
 ifndef AFL_NO_X86
