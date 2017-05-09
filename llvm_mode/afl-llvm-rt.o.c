@@ -279,9 +279,6 @@ void __sanitizer_cov_trace_pc(void) {
 
   __afl_area_ptr[cur ^ __afl_prev_loc]++;
   __afl_area_ptr_sumana[cur ^ __afl_prev_loc]++;
-  printf("testing here: \n");
-  printf("%d\n", cur ^ __afl_prev_loc);
-  sleep(1)
 
 
 #if MAP_SIZE_POW2 > 12
