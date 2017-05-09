@@ -1,14 +1,11 @@
-CC = ../../afl-gcc
-CXX = ../../afl-g++
+CC = ../../afl-clang-fast
 
 FUZZER = ../../afl-fuzz
 
-INCLUDES =
 LIB_SRC = ../libs
 ZLIB_SRC = $(LIB_SRC)/zlib-1.2.11
 
 CFLAGS = -g -Wall -O2 
-CXXFLAGS = -g -Wall
 
 all: test
 
