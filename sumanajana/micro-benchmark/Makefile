@@ -1,15 +1,10 @@
-CC = ../../afl-gcc
-CXX = ../../afl-g++
-
+CC = ../../afl-clang-fast
 CFLAGS = -g -Wall -O2 
-CXXFLAGS = -g -Wall
 
-LDFLAGS = -g
-LDLIBS = --coverage
+FUZZER = ../../afl-fuzz
 
-#beginning
 test: micro
-	../../afl-fuzz -i input -o output ./$< @@
+	$(FUZZER) -i input -o output ./$< @@
 
 micro: micro.o
 	AFL_HARDEN=1 $(CC) $(LDFLAGS) $< -o $@
