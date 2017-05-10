@@ -109,6 +109,9 @@ bool AFLCoverage::runOnModule(Module &M) {
 
   /* Instrument all the things! */
 
+  EXP_ST u8* dom_bits = new u8[MAP_SIZE];
+  memset(dom_bits, 0, MAP_SIZE);
+
   int inst_blocks = 0;
 
   for (auto &F : M) {
@@ -125,25 +128,21 @@ bool AFLCoverage::runOnModule(Module &M) {
       /* Make up cur_loc */
 
       unsigned int cur_loc = R(MAP_SIZE);
-
       ConstantInt *CurLoc = ConstantInt::get(Int32Ty, cur_loc);
-
-      /* Initialize dominator data */
-
-      SmallVector<BasicBlock *, 10> sm;
-      dt.getDescendants(&BB, sm);
-      outs() << "descendants=" << sm.size() << "\n";
-      //AFLDomPtr[cur_loc] = sm.size();
-
-      LoadInst *DomPtr = IRB.CreateLoad(AFLDomPtr);
-      DomPtr->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
-      
 
       /* Load prev_loc */
 
       LoadInst *PrevLoc = IRB.CreateLoad(AFLPrevLoc);
       PrevLoc->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
       Value *PrevLocCasted = IRB.CreateZExt(PrevLoc, IRB.getInt32Ty());
+
+      /* Gather dominator data */
+
+      unsigned int prev_loc = cast<unsigned int>(PrevLocCasted);
+      SmallVector<BasicBlock *, 10> sm;
+      dt.getDescendants(&BB, sm);
+      //outs() << "descendants=" << sm.size() << "\n";
+      dom_bits[cur_loc ^ prev_loc] = sm.size();
 
       /* Load SHM pointer */
 
@@ -152,12 +151,23 @@ bool AFLCoverage::runOnModule(Module &M) {
       Value *MapPtrIdx =
           IRB.CreateGEP(MapPtr, IRB.CreateXor(PrevLocCasted, CurLoc));
 
-      /* Update bitmap */
+      LoadInst *DomPtr = IRB.CreateLoad(AFLDomPtr);
+      DomPtr->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
+      Value *DomPtrIdx =
+          IRB.CreateGEP(DomPtr, IRB.CreateXor(PrevLocCasted, CurLoc));
+
+      /* Update bitmaps (trace_bits & dom_bits) */
 
       LoadInst *Counter = IRB.CreateLoad(MapPtrIdx);
       Counter->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
       Value *Incr = IRB.CreateAdd(Counter, ConstantInt::get(Int8Ty, 1));
       IRB.CreateStore(Incr, MapPtrIdx)
+          ->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
+
+      LoadInst *Counter2 = IRB.CreateLoad(DomPtrIdx);
+      Counter2->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
+      Value *Incr2 = IRB.CreateSub(Counter2, ConstantInt::get(Int8Ty, 1));
+      IRB.CreateStore(Incr2, DomPtrIdx)
           ->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
 
       /* Set prev_loc to cur_loc >> 1 */
@@ -170,6 +180,12 @@ bool AFLCoverage::runOnModule(Module &M) {
 
     }
   }
+
+  /* Initialize dom_bits with gathered values */
+  
+  ArrayRef af(dom_bits, MAP_SIZE);
+  ConstantArray ca(u8, af);
+  AFLDomPtr->setInitializer(&ca);
 
   /* Say something nice. */
 
