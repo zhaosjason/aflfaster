@@ -298,8 +298,6 @@ void __sanitizer_cov_trace_pc(void) {
   if (cur > inst_ratio_scaled) return;
 
   __afl_area_ptr[cur ^ __afl_prev_loc]++;
-  __afl_area_ptr_sumana[cur ^ __afl_prev_loc]++;
-
 
 #if MAP_SIZE_POW2 > 12
   __afl_prev_loc = cur << (MAP_SIZE_POW2 - 12);

@@ -111,7 +111,10 @@ bool AFLCoverage::runOnModule(Module &M) {
 
   int inst_blocks = 0;
 
-  for (auto &F : M)
+  for (auto &F : M) {
+    DominatorTree dt = DominatorTree(F);
+    //dt.print(outs());
+
     for (auto &BB : F) {
 
       BasicBlock::iterator IP = BB.getFirstInsertionPt();
@@ -124,6 +127,17 @@ bool AFLCoverage::runOnModule(Module &M) {
       unsigned int cur_loc = R(MAP_SIZE);
 
       ConstantInt *CurLoc = ConstantInt::get(Int32Ty, cur_loc);
+
+      /* Initialize dominator data */
+
+      SmallVector<BasicBlock *, 10> sm;
+      dt.getDescendants(&BB, sm);
+      outs() << "descendants=" << sm.size() << "\n";
+      //AFLDomPtr[cur_loc] = sm.size();
+
+      LoadInst *DomPtr = IRB.CreateLoad(AFLDomPtr);
+      DomPtr->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
+      
 
       /* Load prev_loc */
 
@@ -155,6 +169,7 @@ bool AFLCoverage::runOnModule(Module &M) {
       inst_blocks++;
 
     }
+  }
 
   /* Say something nice. */
 
