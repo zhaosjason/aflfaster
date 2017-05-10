@@ -141,6 +141,7 @@ static s32 forksrv_pid,               /* PID of the fork server           */
            out_dir_fd = -1;           /* FD of the lock file              */
 
 EXP_ST u8* trace_bits;                /* SHM with instrumentation bitmap  */
+EXP_ST u8* dom_bits;                  /* SHM with dominator bitmap        */
 
 EXP_ST u8  virgin_bits[MAP_SIZE],     /* Regions yet untouched by fuzzing */
            virgin_hang[MAP_SIZE],     /* Bits we haven't seen in hangs    */
@@ -148,7 +149,8 @@ EXP_ST u8  virgin_bits[MAP_SIZE],     /* Regions yet untouched by fuzzing */
 
 static u8  var_bytes[MAP_SIZE];       /* Bytes that appear to be variable */
 
-static s32 shm_id;                    /* ID of the SHM region             */
+static s32 shm_id;                    /* ID of the coverage SHM region    */
+static s32 shm_id2;                   /* ID of the dominator SHM region   */
 
 static volatile u8 stop_soon,         /* Ctrl-C pressed?                  */
                    clear_screen = 1,  /* Window resized?                  */
@@ -1370,6 +1372,7 @@ static void cull_queue(void) {
 EXP_ST void setup_shm(void) {
 
   u8* shm_str;
+  u8* shm_str2;
 
   if (!in_bitmap) memset(virgin_bits, 255, MAP_SIZE);
 
@@ -1377,23 +1380,30 @@ EXP_ST void setup_shm(void) {
   memset(virgin_crash, 255, MAP_SIZE);
 
   shm_id = shmget(IPC_PRIVATE, MAP_SIZE, IPC_CREAT | IPC_EXCL | 0600);
+  shm_id2 = shmget(IPC_PRIVATE, MAP_SIZE, IPC_CREAT | IPC_EXCL | 0600);
 
-  if (shm_id < 0) PFATAL("shmget() failed");
+  if (shm_id < 0 || shm_id2 < 0) PFATAL("shmget() failed");
 
   atexit(remove_shm);
 
   shm_str = alloc_printf("%d", shm_id);
+  shm_str2 = alloc_printf("%d", shm_id2);
 
   /* If somebody is asking us to fuzz instrumented binaries in dumb mode,
      we don't want them to detect instrumentation, since we won't be sending
      fork server commands. This should be replaced with better auto-detection
      later on, perhaps? */
 
-  if (!dumb_mode) setenv(SHM_ENV_VAR, shm_str, 1);
+  if (!dumb_mode) {
+    setenv(SHM_ENV_VAR, shm_str, 1);
+    setenv(SHM_ENV_VAR2, shm_str2, 1);
+  }
 
   ck_free(shm_str);
+  ck_free(shm_str2);
 
   trace_bits = shmat(shm_id, NULL, 0);
+  dom_bits = shmat(shm_id2, NULL, 0);
   
   if (!trace_bits) PFATAL("shmat() failed");
 

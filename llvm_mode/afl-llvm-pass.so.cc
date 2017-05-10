@@ -35,6 +35,7 @@
 #include "llvm/IR/Module.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
+#include "llvm/IR/Dominators.h"
 
 using namespace llvm;
 
@@ -97,6 +98,10 @@ bool AFLCoverage::runOnModule(Module &M) {
   GlobalVariable *AFLMapPtr =
       new GlobalVariable(M, PointerType::get(Int8Ty, 0), false,
                          GlobalValue::ExternalLinkage, 0, "__afl_area_ptr");
+
+  GlobalVariable *AFLDomPtr =
+      new GlobalVariable(M, PointerType::get(Int8Ty, 0), false,
+                         GlobalValue::ExternalLinkage, 0, "__afl_dom_ptr");
 
   GlobalVariable *AFLPrevLoc = new GlobalVariable(
       M, Int32Ty, false, GlobalValue::ExternalLinkage, 0, "__afl_prev_loc",
