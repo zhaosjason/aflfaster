@@ -143,7 +143,7 @@ static s32 forksrv_pid,               /* PID of the fork server           */
 
 EXP_ST u8*  trace_bits;               /* SHM with instrumentation bitmap  */
 EXP_ST u64* dom_bits;                 /* SHM with dominator bitmap        */
-EXP_ST u64  max_dom;                  /* Maximum dominator value          */
+//EXP_ST u64  max_dom;                  /* Maximum dominator value          */
 
 EXP_ST u8  virgin_bits[MAP_SIZE],     /* Regions yet untouched by fuzzing */
            virgin_hang[MAP_SIZE],     /* Bits we haven't seen in hangs    */
@@ -1382,7 +1382,7 @@ EXP_ST void setup_shm(void) {
   memset(virgin_crash, 255, MAP_SIZE);
 
   shm_id = shmget(IPC_PRIVATE, MAP_SIZE, IPC_CREAT | IPC_EXCL | 0600);
-  shm_id2 = shmget(IPC_PRIVATE, MAP_SIZE, IPC_CREAT | IPC_EXCL | 0600);
+  shm_id2 = shmget(IPC_PRIVATE, MAP_SIZE * sizeof(u64), IPC_CREAT | IPC_EXCL | 0600);
 
   if (shm_id < 0 || shm_id2 < 0) PFATAL("shmget() failed");
 
@@ -4795,12 +4795,19 @@ static u32 calculate_score(struct queue_entry* q) {
 
   /* AFLFaster: multiply perf_score by dominator score (0...1) */
 
+  u64 max_dom = 0;
   u64 dom_sum = 0;
   for (int i = 0; i < MAP_SIZE; i++) {
     dom_sum += dom_bits[i];
+    if (dom_bits[i] > max_dom) {
+      max_dom = dom_bits[i];
+    }
   }
 
-  perf_score *= (log(dom_sum) / log(max_dom));
+  double dom_score = (log(dom_sum) / log(max_dom)) * 100;
+  if (!dom_score) { fprintf(stderr, "DOM_SCORE IS ZERO!!\n"); }
+
+  perf_score *= dom_score;
 
   /* Make sure that we don't go over limit. */
 
@@ -8058,12 +8065,12 @@ int main(int argc, char** argv) {
   show_init_stats();
 
   /* AFLFaster find maximum dominator value, could just get root value
-     but we're out of time lol.. TODO */
+     but we're out of time lol.. TODO
   for (int i = 0; i < MAP_SIZE; i++) {
     if (dom_bits[i] > max_dom) {
       max_dom = dom_bits[i];
     }
-  }
+  }*/
 
 
   seek_to = find_start_position();

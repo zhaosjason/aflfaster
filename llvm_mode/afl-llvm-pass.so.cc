@@ -100,7 +100,7 @@ bool AFLCoverage::runOnModule(Module &M) {
                          GlobalValue::ExternalLinkage, 0, "__afl_area_ptr");
 
   GlobalVariable *AFLDomPtr =
-      new GlobalVariable(M, PointerType::get(Int64Ty, 0), false,
+      new GlobalVariable(M, PointerType::get(Type::getInt64Ty(C), 0), false,
                          GlobalValue::ExternalLinkage, 0, "__afl_dom_ptr");
 
   GlobalVariable *AFLPrevLoc = new GlobalVariable(
