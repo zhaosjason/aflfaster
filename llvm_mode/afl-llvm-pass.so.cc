@@ -109,8 +109,8 @@ bool AFLCoverage::runOnModule(Module &M) {
 
   /* Instrument all the things! */
 
-  EXP_ST u8* dom_bits = new u8[MAP_SIZE];
-  memset(dom_bits, 0, MAP_SIZE);
+  // u8 *dom_bits = new u8[MAP_SIZE];
+  // memset(dom_bits, 0, MAP_SIZE);
 
   int inst_blocks = 0;
 
@@ -138,11 +138,10 @@ bool AFLCoverage::runOnModule(Module &M) {
 
       /* Gather dominator data */
 
-      unsigned int prev_loc = cast<unsigned int>(PrevLocCasted);
+      unsigned int prev_loc = *cast<unsigned int>(PrevLocCasted);
       SmallVector<BasicBlock *, 10> sm;
       dt.getDescendants(&BB, sm);
-      //outs() << "descendants=" << sm.size() << "\n";
-      dom_bits[cur_loc ^ prev_loc] = sm.size();
+      // dom_bits[cur_loc ^ prev_loc] = sm.size();
 
       /* Load SHM pointer */
 
@@ -166,8 +165,10 @@ bool AFLCoverage::runOnModule(Module &M) {
 
       LoadInst *Counter2 = IRB.CreateLoad(DomPtrIdx);
       Counter2->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
-      Value *Incr2 = IRB.CreateSub(Counter2, ConstantInt::get(Int8Ty, 1));
-      IRB.CreateStore(Incr2, DomPtrIdx)
+      // Value *Incr2 = IRB.CreateSub(Counter2, ConstantInt::get(Int8Ty, 1));
+      // IRB.CreateStore(Incr2, DomPtrIdx)
+      //     ->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
+      IRB.CreateStore(ConstantInt::get(IntegerType::get(C, 8), sm.size()), DomPtrIdx)
           ->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
 
       /* Set prev_loc to cur_loc >> 1 */
@@ -183,9 +184,9 @@ bool AFLCoverage::runOnModule(Module &M) {
 
   /* Initialize dom_bits with gathered values */
   
-  ArrayRef af(dom_bits, MAP_SIZE);
-  ConstantArray ca(u8, af);
-  AFLDomPtr->setInitializer(&ca);
+  // ArrayRef<u8> af(dom_bits, MAP_SIZE);
+  // ConstantArray ca(u8, af);
+  // AFLDomPtr->setInitializer(&ca);
 
   /* Say something nice. */
 
