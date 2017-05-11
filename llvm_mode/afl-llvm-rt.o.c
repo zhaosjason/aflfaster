@@ -58,7 +58,6 @@ static u8 is_persistent;
 static void __afl_map_shm(void) {
 
   u8 *id_str = getenv(SHM_ENV_VAR);
-  u8 *id_str2 = getenv(SHM_ENV_VAR2);
 
   /* If we're running under AFL, attach to the appropriate region, replacing the
      early-stage __afl_area_initial region that is needed to allow some really
@@ -80,6 +79,12 @@ static void __afl_map_shm(void) {
     __afl_area_ptr[0] = 1;
 
   }
+
+}
+
+static void __afl_dom_shm(void) {
+
+  u8 *id_str2 = getenv(SHM_ENV_VAR2);
 
   /* Dominator data bitmap for AFLFaster */
 
@@ -249,6 +254,7 @@ void __afl_manual_init(void) {
   if (!init_done) {
 
     __afl_map_shm();
+    __afl_dom_shm();
     __afl_start_forkserver();
     init_done = 1;
 
