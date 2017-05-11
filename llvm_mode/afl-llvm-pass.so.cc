@@ -115,10 +115,12 @@ bool AFLCoverage::runOnModule(Module &M) {
   int inst_blocks = 0;
 
   for (auto &F : M) {
-    DominatorTree dt = DominatorTree(F);
+    //DominatorTree dt = DominatorTree(F);
     //dt.print(outs());
 
     for (auto &BB : F) {
+
+      DominatorTree dt = DominatorTree(F);
 
       BasicBlock::iterator IP = BB.getFirstInsertionPt();
       IRBuilder<> IRB(&(*IP));
@@ -138,8 +140,8 @@ bool AFLCoverage::runOnModule(Module &M) {
 
       /* Gather dominator data */
 
-      unsigned int prev_loc = *cast<unsigned int>(PrevLocCasted);
-      SmallVector<BasicBlock *, 10> sm;
+      //unsigned int prev_loc = *cast<unsigned int>(PrevLocCasted);
+      SmallVector<BasicBlock *, 100> sm;
       dt.getDescendants(&BB, sm);
       // dom_bits[cur_loc ^ prev_loc] = sm.size();
 
