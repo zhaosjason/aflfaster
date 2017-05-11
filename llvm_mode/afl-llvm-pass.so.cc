@@ -100,7 +100,7 @@ bool AFLCoverage::runOnModule(Module &M) {
                          GlobalValue::ExternalLinkage, 0, "__afl_area_ptr");
 
   GlobalVariable *AFLDomPtr =
-      new GlobalVariable(M, PointerType::get(Int8Ty, 0), false,
+      new GlobalVariable(M, PointerType::get(Int64Ty, 0), false,
                          GlobalValue::ExternalLinkage, 0, "__afl_dom_ptr");
 
   GlobalVariable *AFLPrevLoc = new GlobalVariable(
@@ -170,7 +170,7 @@ bool AFLCoverage::runOnModule(Module &M) {
       // Value *Incr2 = IRB.CreateSub(Counter2, ConstantInt::get(Int8Ty, 1));
       // IRB.CreateStore(Incr2, DomPtrIdx)
       //     ->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
-      IRB.CreateStore(ConstantInt::get(IntegerType::get(C, 8), sm.size()), DomPtrIdx)
+      IRB.CreateStore(ConstantInt::get(IntegerType::get(C, 64), sm.size()), DomPtrIdx)
           ->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
 
       /* Set prev_loc to cur_loc >> 1 */

@@ -42,8 +42,8 @@
 u8  __afl_area_initial[MAP_SIZE];
 u8* __afl_area_ptr = __afl_area_initial;
 
-u8  __afl_dom_area[MAP_SIZE];
-u8* __afl_dom_ptr = __afl_dom_area;
+u64  __afl_dom_area[MAP_SIZE];
+u64* __afl_dom_ptr = __afl_dom_area;
 
 __thread u32 __afl_prev_loc;
 

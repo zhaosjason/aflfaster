@@ -46,6 +46,7 @@
 #include <termios.h>
 #include <dlfcn.h>
 #include <sched.h>
+#include <math.h>
 
 #include <sys/wait.h>
 #include <sys/time.h>
@@ -140,8 +141,9 @@ static s32 forksrv_pid,               /* PID of the fork server           */
            child_pid = -1,            /* PID of the fuzzed program        */
            out_dir_fd = -1;           /* FD of the lock file              */
 
-EXP_ST u8* trace_bits;                /* SHM with instrumentation bitmap  */
-EXP_ST u8* dom_bits;                  /* SHM with dominator bitmap        */
+EXP_ST u8*  trace_bits;               /* SHM with instrumentation bitmap  */
+EXP_ST u64* dom_bits;                 /* SHM with dominator bitmap        */
+EXP_ST u64  max_dom;                  /* Maximum dominator value          */
 
 EXP_ST u8  virgin_bits[MAP_SIZE],     /* Regions yet untouched by fuzzing */
            virgin_hang[MAP_SIZE],     /* Bits we haven't seen in hangs    */
@@ -2311,6 +2313,7 @@ static u8 run_target(char** argv) {
      territory. */
 
   memset(trace_bits, 0, MAP_SIZE);
+  memset(dom_bits, 0, MAP_SIZE * sizeof(u64));
   MEM_BARRIER();
 
   /* If we're running in "dumb" mode, we can't rely on the fork server
@@ -4789,6 +4792,15 @@ static u32 calculate_score(struct queue_entry* q) {
     factor = MAX_FACTOR;
 
   perf_score *= factor / POWER_BETA;
+
+  /* AFLFaster: multiply perf_score by dominator score (0...1) */
+
+  u64 dom_sum = 0;
+  for (int i = 0; i < MAP_SIZE; i++) {
+    dom_sum += dom_bits[i];
+  }
+
+  perf_score *= (log(dom_sum) / log(max_dom));
 
   /* Make sure that we don't go over limit. */
 
@@ -8044,6 +8056,15 @@ int main(int argc, char** argv) {
   cull_queue();
 
   show_init_stats();
+
+  /* AFLFaster find maximum dominator value, could just get root value
+     but we're out of time lol.. TODO */
+  for (int i = 0; i < MAP_SIZE; i++) {
+    if (dom_bits[i] > max_dom) {
+      max_dom = dom_bits[i];
+    }
+  }
+
 
   seek_to = find_start_position();
 
